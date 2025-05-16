@@ -2,8 +2,6 @@
 
 A web application that analyzes fashion trends by scraping fashion publications and integrating Google Trends data. This tool helps identify if certain colors, styles, or fashion concepts are currently trending based on multiple data sources.
 
-![Fashion Trend Analyzer](https://via.placeholder.com/800x400?text=Fashion+Trend+Analyzer)
-
 ## Features
 
 - **Web Scraping**: Analyzes top fashion websites including Vogue and Business of Fashion
@@ -109,18 +107,6 @@ fashion-trend-analyzer/
 pytest
 ```
 
-### Adding New Features
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Commit your changes: `git commit -m 'Add some feature'`
-4. Push to the branch: `git push origin feature-name`
-5. Open a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## Technology Stack
 
 - **Backend Framework**: Flask (Python)
@@ -136,5 +122,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Fashion data sourced from Vogue, Business of Fashion, Elle, and Harper's Bazaar
 - Search interest data from Google Trends
-- Icon design by [Bootstrap Icons](https://icons.getbootstrap.com/)
-
