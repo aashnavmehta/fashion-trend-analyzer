@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}{{ results.term }} - Fashion Trend Analysis Results{% endblock %}
+
+{% block head %}
+<!-- Chart.js for data visualization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">Trend Analysis: <span class="text-primary">{{ results.term }}</span></h1>
+            <p class="text-muted">Analysis completed on {{ results.timestamp }}</p>
+        </div>
+    </div>
+
+    <!-- Trend Score and Status -->
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center">
+                            <div class="trend-score text-{{ 'success' if results.trend_score.is_trending else 'secondary' }}">
+                                {{ "%.1f"|format(results.trend_score.overall_score) }}/100
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge fs-6 bg-{{ 'success' if results.trend_score.is_trending else 'secondary' }} trend-badge">
+                                    {% if results.trend_score.is_trending %}
+                                        <i class="bi bi-arrow-up-right"></i> Trending
+                                    {% else %}
+                                        <i class="bi bi-arrow-down-right"></i> Not Trending
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-info">{{ results.trend_score.confidence|capitalize }} Confidence</span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h3 class="card-title mb-3">Overall Analysis</h3>
+                            <p class="lead">{{ results.summary }}</p>
+                            <div class="mt-3">
+                                <h5>Score Breakdown</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Web Score:</span>
+                                            <strong>{{ "%.1f"|format(results.trend_score.score_breakdown.web_score) }}/100</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Google Score:</span>
+                                            <strong>{{ "%.1f"|format(results.trend_score.score_breakdown.google_score) }}/100</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Web Mentions and Google Trends -->
+    <div class="row mb-5">
+        <!-- Web Mentions -->
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="card-title mb-0">Web Mentions Analysis</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h2 class="display-6">{{ results.web_mentions.mentions }}</h2>
+                        <p class="text-muted">Total Mentions</p>
+                    </div>
+                    <h5>Source Breakdown</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Source</th>
+                                    <th>Mentions</th>
+                                    <th>Sentiment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for source in results.web_mentions.source_breakdown %}
+                                <tr>
+                                    <td>{{ source.source }}</td>
+                                    <td>{{ source.mentions }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if source.sentiment == 'positive' else ('warning' if source.sentiment == 'neutral' else 'danger') }}">
+                                            {{ source.sentiment|capitalize }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <p class="mb-0 text-muted">
+                        <small>Analyzed {{ results.web_mentions.sources_analyzed }} major fashion publications</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Google Trends -->
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="card-title mb-0">Google Trends Data</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>
+                            <h5 class="mb-0">Average Interest</h5>
+                            <p class="display-6">{{ results.google_trends.average_interest }}/100</p>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">Max Interest</h5>
+                            <p class="display-6">{{ results.google_trends.max_interest }}/100</p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h5>Direction</h5>
+                        <p class="mb-0">
+                            {% if results.google_trends.trending_direction == 'up' %}
+                            <i class="bi bi-arrow-up-right text-success"></i> Interest is increasing
+                            {% elif results.google_trends.trending_direction == 'down' %}
+                            <i class="bi bi-arrow-down-right text-danger"></i> Interest is decreasing
+                            {% else %}
+                            <i class="bi bi-arrow-right text-warning"></i> Interest is stable
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <h5>Interest Over Time</h5>
+                        <canvas id="googleTrendsChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <p class="mb-0 text-muted">
+                        <small>Data from the last {{ results.google_trends.time_period }}</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Search Button -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">Analyze Another Trend</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Google Trends Chart
+    document.addEventListener('DOMContentLoaded', function() {
+        const trendData = {{ results.google_trends.interest_over_time|tojson }};
+        
+        const dates = trendData.map(item => item.date);
+        const interestValues = trendData.map(item => item.interest);
+        
+        const ctx = document.getElementById('googleTrendsChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Interest',
+                    data: interestValues,
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+
